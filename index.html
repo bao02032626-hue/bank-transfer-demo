@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô phỏng Chuyển tiền Ngân hàng</title>
+    <style>
+        :root {
+            --primary-color: #0052cc;
+            --primary-dark: #003d99;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #172b4d;
+            --text-muted: #6b778c;
+            --success-color: #36b37e;
+            --border-color: #dfe1e6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Khung giả lập điện thoại */
+        .phone-frame {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--bg-color);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 8px solid #1e293b;
+            position: relative;
+            min-height: 720px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 25px 20px 30px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+
+        .app-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .balance-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .balance-label {
+            font-size: 12px;
+            opacity: 0.85;
+        }
+
+        .balance-amount {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .account-number {
+            font-size: 13px;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        /* Form Container */
+        .app-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            background: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: var(--text-main);
+            font-weight: 500;
+            background: transparent;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #a5adba;
+            font-weight: 400;
+        }
+
+        .recipient-name-box {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--border-color);
+            font-size: 13px;
+            color: var(--primary-color);
+            font-weight: 700;
+            text-transform: uppercase;
+            display: none;
+        }
+
+        /* Nút chọn nhanh số tiền */
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-btn {
+            background: #ebecf0;
+            border: none;
+            padding: 6px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text-main);
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: #dfe1e6;
+        }
+
+        /* Nút tiếp tục */
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: auto;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-submit:disabled {
+            background-color: #a5adba;
+            cursor: not-allowed;
+        }
+
+        /* Màn hình biên lai (Success Modal) */
+        .receipt-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 10;
+            padding: 25px 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--success-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 16px rgba(54, 179, 126, 0.3);
+        }
+
+        .receipt-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .receipt-amount {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin: 10px 0 20px;
+        }
+
+        .receipt-details {
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f4f5f7;
+            font-size: 13px;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+        }
+
+        .detail-value {
+            color: var(--text-main);
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .demo-watermark {
+            margin-top: 15px;
+            font-size: 11px;
+            color: #de350b;
+            background: #ffebe6;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <!-- Màn hình nhập liệu chuyển tiền -->
+    <div class="app-header">
+        <h2>Chuyển tiền nhanh 24/7</h2>
+        <div class="balance-card">
+            <div class="balance-label">Tài khoản nguồn (VND)</div>
+            <div class="balance-amount" id="displayBalance">50,000,000 VND</div>
+            <div class="account-number">STK: 0987654321 - NGUYEN VAN A</div>
+        </div>
+    </div>
+
+    <div class="app-body">
+        <div class="form-group">
+            <label>Ngân hàng thụ hưởng</label>
+            <select id="bankSelect">
+                <option value="Vietcombank">Vietcombank - Ngoại thương</option>
+                <option value="Techcombank">Techcombank - Kỹ thương</option>
+                <option value="MB Bank">MB Bank - Quân đội</option>
+                <option value="ACB">ACB - Á Châu</option>
+                <option value="BIDV">BIDV - Đầu tư & Phát triển</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Số tài khoản nhận</label>
+            <input type="text" id="accountInput" placeholder="Nhập số tài khoản (VD: 123456789)" maxlength="15">
+            <div class="recipient-name-box" id="recipientName">TRAN THI B</div>
+        </div>
+
+        <div class="form-group">
+            <label>Số tiền chuyển (VND)</label>
+            <input type="text" id="amountInput" placeholder="0">
+            <div class="quick-amounts">
+                <button type="button" class="quick-btn" onclick="setAmount(100000)">100,000</button>
+                <button type="button" class="quick-btn" onclick="setAmount(500000)">500,000</button>
+                <button type="button" class="quick-btn" onclick="setAmount(2000000)">2,000,000</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Nội dung chuyển tiền</label>
+            <textarea id="messageInput" rows="2" placeholder="Nhập nội dung...">NGUYEN VAN A chuyen tien</textarea>
+        </div>
+
+        <button class="btn-submit" id="transferBtn" onclick="processTransfer()">Tiếp tục</button>
+    </div>
+
+    <!-- Màn hình kết quả giao dịch -->
+    <div class="receipt-screen" id="receiptScreen">
+        <div class="success-icon">✓</div>
+        <div class="receipt-title">Giao dịch thành công!</div>
+        <div class="receipt-amount" id="resAmount">0 VND</div>
+
+        <div class="receipt-details">
+            <div class="detail-row">
+                <span class="detail-label">Tên người nhận</span>
+                <span class="detail-value" id="resName">TRAN THI B</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Ngân hàng</span>
+                <span class="detail-value" id="resBank">Vietcombank</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Số tài khoản</span>
+                <span class="detail-value" id="resAccount">123456789</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Thời gian</span>
+                <span class="detail-value" id="resTime">--/--/----</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Mã giao dịch</span>
+                <span class="detail-value" id="resRef">FT2611249981</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Nội dung</span>
+                <span class="detail-value" id="resMessage">-</span>
+            </div>
+        </div>
+
+        <div class="demo-watermark">GIAO DIỆN MÔ PHỎNG UI/UX</div>
+
+        <button class="btn-submit" style="width: 100%; margin-top: auto;" onclick="resetForm()">Thực hiện giao dịch mới</button>
+    </div>
+</div>
+
+<script>
+    let currentBalance = 50000000;
+
+    // Danh sách tên giả lập để tự động hiển thị khi nhập STK
+    const mockNames = ["TRAN THI B", "LE HOANG C", "PHAM MINH D", "HOANG THU E"];
+    const accountInput = document.getElementById('accountInput');
+    const recipientNameBox = document.getElementById('recipientName');
+    const amountInput = document.getElementById('amountInput');
+
+    // Tự động tra cứu tên người nhận giả lập khi nhập đủ 6 ký tự
+    accountInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, ''); // Chỉ cho nhập số
+        if (this.value.length >= 6) {
+            const index = parseInt(this.value.slice(-1)) % mockNames.length;
+            recipientNameBox.textContent = mockNames[index];
+            recipientNameBox.style.display = 'block';
+        } else {
+            recipientNameBox.style.display = 'none';
+        }
+    });
+
+    // Định dạng dấu phẩy hàng nghìn cho số tiền
+    amountInput.addEventListener('input', function() {
+        let rawValue = this.value.replace(/[^0-9]/g, '');
+        if (rawValue) {
+            this.value = parseInt(rawValue, 10).toLocaleString('en-US');
+        } else {
+            this.value = '';
+        }
+    });
+
+    function setAmount(val) {
+        amountInput.value = val.toLocaleString('en-US');
+    }
+
+    function processTransfer() {
+        const account = accountInput.value.trim();
+        const rawAmount = parseInt(amountInput.value.replace(/,/g, ''), 10);
+        const bank = document.getElementById('bankSelect').value;
+        const message = document.getElementById('messageInput').value.trim();
+        const recipient = recipientNameBox.textContent;
+
+        if (account.length < 6) {
+            alert("Vui lòng nhập số tài khoản hợp lệ (tối thiểu 6 chữ số).");
+            return;
+        }
+        if (!rawAmount || rawAmount <= 0) {
+            alert("Vui lòng nhập số tiền cần chuyển.");
+            return;
+        }
+        if (rawAmount > currentBalance) {
+            alert("Số dư tài khoản không đủ để thực hiện giao dịch.");
+            return;
+        }
+
+        // Trừ số dư giả lập
+        currentBalance -= rawAmount;
+        document.getElementById('displayBalance').textContent = currentBalance.toLocaleString('en-US') + " VND";
+
+        // Cập nhật thông tin lên biên lai
+        document.getElementById('resAmount').textContent = rawAmount.toLocaleString('en-US') + " VND";
+        document.getElementById('resName').textContent = recipient;
+        document.getElementById('resBank').textContent = bank;
+        document.getElementById('resAccount').textContent = account;
+        document.getElementById('resMessage').textContent = message || "Chuyen tien";
+
+        // Lấy thời gian hiện tại
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + " - " + now.toLocaleDateString('vi-VN');
+        document.getElementById('resTime').textContent = timeString;
+
+        // Tạo mã tham chiếu ngẫu nhiên
+        document.getElementById('resRef').textContent = "FT" + Math.floor(100000000 + Math.random() * 900000000);
+
+        // Hiển thị màn hình biên lai
+        document.getElementById('receiptScreen').style.display = 'flex';
+    }
+
+    function resetForm() {
+        accountInput.value = '';
+        amountInput.value = '';
+        recipientNameBox.style.display = 'none';
+        document.getElementById('receiptScreen').style.display = 'none';
+    }
+</script>
+
+</body>
+  </html>
+  
