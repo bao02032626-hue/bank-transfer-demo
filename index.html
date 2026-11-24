@@ -2,18 +2,18 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mô phỏng Chuyển tiền Ngân hàng</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shinhan SOL Vietnam - UI/UX Demo</title>
     <style>
         :root {
-            --primary-color: #0052cc;
-            --primary-dark: #003d99;
-            --bg-color: #f4f6f9;
-            --card-bg: #ffffff;
-            --text-main: #172b4d;
-            --text-muted: #6b778c;
-            --success-color: #36b37e;
-            --border-color: #dfe1e6;
+            --shinhan-blue: #0046ff;
+            --shinhan-dark: #002d9c;
+            --shinhan-light-blue: #e8f0fe;
+            --bg-gray: #f4f6f9;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --border-color: #e2e8f0;
+            --success-green: #10b981;
         }
 
         * {
@@ -21,440 +21,474 @@
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: #e2e8f0;
+            background-color: #dce3ec;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
         }
 
-        /* Khung giả lập điện thoại */
-        .phone-frame {
+        /* Khung ứng dụng tối ưu cho cả Mobile & Desktop */
+        .app-container {
             width: 100%;
-            max-width: 400px;
-            background-color: var(--bg-color);
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-            border: 8px solid #1e293b;
+            max-width: 420px;
+            height: 100vh;
+            max-height: 850px;
+            background-color: #ffffff;
             position: relative;
-            min-height: 720px;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
         }
 
-        /* Header */
-        .app-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            padding: 25px 20px 30px;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
+        @media (max-width: 480px) {
+            .app-container {
+                max-width: 100%;
+                height: 100vh;
+                max-height: none;
+                box-shadow: none;
+            }
         }
 
-        .app-header h2 {
-            font-size: 18px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 15px;
+        /* ================= LOGO SHINHAN SOL CHUẨN ================= */
+        .sol-logo {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
         }
-
-        .balance-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .balance-label {
-            font-size: 12px;
-            opacity: 0.85;
-        }
-
-        .balance-amount {
-            font-size: 22px;
-            font-weight: 700;
-            margin-top: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .account-number {
+        .sol-logo-top {
             font-size: 13px;
-            margin-top: 8px;
-            opacity: 0.9;
+            font-weight: 700;
+            color: var(--shinhan-blue);
+            align-self: flex-start;
+            margin-bottom: -6px;
+            letter-spacing: -0.3px;
+        }
+        .sol-logo-mid {
+            font-size: 38px;
+            font-weight: 900;
+            color: var(--shinhan-blue);
+            letter-spacing: -2px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+        }
+        .sol-logo-mid span.o-ring {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border: 5px solid var(--shinhan-blue);
+            border-radius: 50%;
+            margin: 0 1px;
+            transform: translateY(2px);
+        }
+        .sol-logo-bot {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--shinhan-blue);
+            align-self: flex-end;
+            margin-top: -2px;
         }
 
-        /* Form Container */
-        .app-body {
-            padding: 20px;
-            flex: 1;
+        /* Logo bản thu nhỏ cho Header */
+        .sol-logo.sm .sol-logo-top { font-size: 9px; margin-bottom: -3px; }
+        .sol-logo.sm .sol-logo-mid { font-size: 20px; letter-spacing: -1px; }
+        .sol-logo.sm .sol-logo-mid span.o-ring { width: 15px; height: 15px; border-width: 3px; }
+        .sol-logo.sm .sol-logo-bot { font-size: 10px; }
+
+        /* ================= CÁC MÀN HÌNH ================= */
+        .screen {
+            position: absolute;
+            inset: 0;
+            background-color: #ffffff;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 1;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* 1. MÀN HÌNH SPLASH (ẢNH 1) */
+        #splashScreen {
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            background: #ffffff;
+            transition: opacity 0.4s ease;
+        }
+
+        /* HEADER CHUNG */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            background: #ffffff;
+        }
+        .top-icons {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #334155;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #334155;
+            position: relative;
+        }
+        .notif-dot {
+            position: absolute;
+            top: 0;
+            right: 1px;
+            width: 7px;
+            height: 7px;
+            background: #ef4444;
+            border-radius: 50%;
+        }
+        .vn-flag {
+            width: 22px;
+            height: 22px;
+            background: #da251d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffff00;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* 2. MÀN HÌNH HOME CHƯA ĐĂNG NHẬP (ẢNH 2) */
+        #homeScreen {
+            background-color: #f8fafc;
+        }
+        .welcome-banner {
+            margin: 4px 16px 16px;
+            background: linear-gradient(135deg, #0052ff 0%, #0039cb 100%);
+            border-radius: 16px;
+            padding: 18px 16px;
+            color: white;
+            box-shadow: 0 6px 16px rgba(0, 70, 255, 0.2);
+        }
+        .welcome-banner p {
+            font-size: 15px;
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+        .welcome-banner strong {
+            font-size: 16px;
+            display: block;
+        }
+        .banner-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .btn-register {
+            background: rgba(0, 26, 102, 0.55);
+            color: white;
+            border: none;
+            padding: 11px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-login-trigger {
+            background: #e2ecff;
+            color: #0039cb;
+            border: none;
+            padding: 11px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .section-title {
+            padding: 4px 18px 12px;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 0 16px 80px;
+        }
+        .service-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 12px 10px;
+            min-height: 112px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .service-card:active {
+            transform: scale(0.97);
+        }
+        .service-card h4 {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+            line-height: 1.25;
+        }
+        .service-card p {
+            font-size: 11px;
+            color: var(--text-gray);
+            line-height: 1.3;
+        }
+        .service-icon {
+            align-self: flex-end;
+            font-size: 20px;
+            margin-top: 6px;
         }
 
-        .form-group {
-            background: var(--card-bg);
-            padding: 14px;
+        /* Bottom Nav */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            padding: 8px 0 10px;
+            z-index: 5;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--text-gray);
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: var(--shinhan-blue);
+            font-weight: 600;
+        }
+        .qr-circle {
+            width: 34px;
+            height: 34px;
+            background: #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -8px;
+            color: #1e293b;
+            font-weight: bold;
+        }
+
+        /* 3. MÀN HÌNH ĐĂNG NHẬP (ẢNH 3) */
+        #loginScreen {
+            background-color: #f4f7fb;
+            justify-content: space-between;
+        }
+        .login-card {
+            background: #ffffff;
+            margin: 10px 16px;
+            border-radius: 18px;
+            padding: 20px 18px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        }
+        .greeting-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .bear-avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #cbe4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            border: 2px solid #e0efff;
+        }
+        .greeting-text {
+            font-size: 17px;
+            font-weight: 600;
+            color: #475569;
+        }
+        .login-input-box {
+            border: 1px solid #cbd5e1;
             border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-            border: 1px solid var(--border-color);
+            padding: 15px 16px;
+            margin-bottom: 12px;
+            background: #ffffff;
+            transition: border-color 0.2s;
         }
-
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: 500;
+        .login-input-box:focus-within {
+            border-color: var(--shinhan-blue);
         }
-
-        .form-group select,
-        .form-group input,
-        .form-group textarea {
+        .login-input-box input {
             width: 100%;
             border: none;
             outline: none;
             font-size: 15px;
-            color: var(--text-main);
-            font-weight: 500;
-            background: transparent;
+            color: var(--text-dark);
         }
-
-        .form-group input::placeholder,
-        .form-group textarea::placeholder {
-            color: #a5adba;
-            font-weight: 400;
+        .login-input-box input::placeholder {
+            color: #64748b;
         }
-
-        .recipient-name-box {
-            margin-top: 8px;
+        .forgot-links {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
             padding-top: 8px;
-            border-top: 1px dashed var(--border-color);
             font-size: 13px;
-            color: var(--primary-color);
-            font-weight: 700;
-            text-transform: uppercase;
-            display: none;
+            font-weight: 600;
+            color: #334155;
         }
-
-        /* Nút chọn nhanh số tiền */
-        .quick-amounts {
+        .forgot-links span {
+            cursor: pointer;
+        }
+        .divider-v {
+            width: 1px;
+            height: 14px;
+            background: #cbd5e1;
+        }
+        .btn-shinhan-primary {
+            width: calc(100% - 32px);
+            margin: 6px 16px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+        }
+        .btn-shinhan-primary:active {
+            background-color: var(--shinhan-dark);
+        }
+        .div-badge {
+            text-align: center;
+            margin: 14px 0;
+            color: #0284c7;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .div-badge span {
+            display: block;
+            font-size: 8px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .login-footer-tools {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            margin-top: 10px;
+            padding: 16px 12px 24px;
+            text-align: center;
         }
-
-        .quick-btn {
-            background: #ebecf0;
-            border: none;
-            padding: 6px;
-            border-radius: 6px;
-            font-size: 12px;
-            color: var(--text-main);
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-
-        .quick-btn:hover {
-            background: #dfe1e6;
-        }
-
-        /* Nút tiếp tục */
-        .btn-submit {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: auto;
-            transition: background 0.2s;
-        }
-
-        .btn-submit:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn-submit:disabled {
-            background-color: #a5adba;
-            cursor: not-allowed;
-        }
-
-        /* Màn hình biên lai (Success Modal) */
-        .receipt-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
-            z-index: 10;
-            padding: 25px 20px;
-            display: none;
+        .footer-tool-item {
+            display: flex;
             flex-direction: column;
             align-items: center;
-            animation: slideUp 0.3s ease-out;
+            gap: 8px;
+            font-size: 11.5px;
+            color: #475569;
+            cursor: pointer;
         }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .success-icon {
-            width: 64px;
-            height: 64px;
-            background: var(--success-color);
-            color: white;
-            border-radius: 50%;
+        .tool-icon-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #dbeafe;
+            color: #2563eb;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 32px;
-            margin-top: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 8px 16px rgba(54, 179, 126, 0.3);
-        }
-
-        .receipt-title {
+            justify-content: center;
             font-size: 18px;
-            font-weight: 700;
-            color: var(--text-main);
         }
 
-        .receipt-amount {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--primary-color);
-            margin: 10px 0 20px;
+        /* 4. MÀN HÌNH CHUYỂN TIỀN (ĐỒNG BỘ SHINHAN) */
+        #transferScreen {
+            background-color: #f4f7fb;
         }
-
-        .receipt-details {
-            width: 100%;
-            background: white;
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        .transfer-header {
+            background: linear-gradient(135deg, #0046ff, #002d9c);
+            color: white;
+            padding: 16px 18px 24px;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
-
-        .detail-row {
+        .transfer-top-nav {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #f4f5f7;
-            font-size: 13px;
+            align-items: center;
+            margin-bottom: 16px;
         }
-
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
-            color: var(--text-muted);
-        }
-
-        .detail-value {
-            color: var(--text-main);
-            font-weight: 600;
-            text-align: right;
-            max-width: 60%;
-        }
-
-        .demo-watermark {
-            margin-top: 15px;
-            font-size: 11px;
-            color: #de350b;
-            background: #ffebe6;
-            padding: 4px 10px;
-            border-radius: 20px;
+        .transfer-top-nav h3 {
+            font-size: 17px;
             font-weight: 600;
         }
-    </style>
-</head>
-<body>
-
-<div class="phone-frame">
-    <!-- Màn hình nhập liệu chuyển tiền -->
-    <div class="app-header">
-        <h2>Chuyển tiền nhanh 24/7</h2>
-        <div class="balance-card">
-            <div class="balance-label">Tài khoản nguồn (VND)</div>
-            <div class="balance-amount" id="displayBalance">50,000,000 VND</div>
-            <div class="account-number">STK: 0987654321 - NGUYEN VAN A</div>
-        </div>
-    </div>
-
-    <div class="app-body">
-        <div class="form-group">
-            <label>Ngân hàng thụ hưởng</label>
-            <select id="bankSelect">
-                <option value="Vietcombank">Vietcombank - Ngoại thương</option>
-                <option value="Techcombank">Techcombank - Kỹ thương</option>
-                <option value="MB Bank">MB Bank - Quân đội</option>
-                <option value="ACB">ACB - Á Châu</option>
-                <option value="BIDV">BIDV - Đầu tư & Phát triển</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Số tài khoản nhận</label>
-            <input type="text" id="accountInput" placeholder="Nhập số tài khoản (VD: 123456789)" maxlength="15">
-            <div class="recipient-name-box" id="recipientName">TRAN THI B</div>
-        </div>
-
-        <div class="form-group">
-            <label>Số tiền chuyển (VND)</label>
-            <input type="text" id="amountInput" placeholder="0">
-            <div class="quick-amounts">
-                <button type="button" class="quick-btn" onclick="setAmount(100000)">100,000</button>
-                <button type="button" class="quick-btn" onclick="setAmount(500000)">500,000</button>
-                <button type="button" class="quick-btn" onclick="setAmount(2000000)">2,000,000</button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Nội dung chuyển tiền</label>
-            <textarea id="messageInput" rows="2" placeholder="Nhập nội dung...">NGUYEN VAN A chuyen tien</textarea>
-        </div>
-
-        <button class="btn-submit" id="transferBtn" onclick="processTransfer()">Tiếp tục</button>
-    </div>
-
-    <!-- Màn hình kết quả giao dịch -->
-    <div class="receipt-screen" id="receiptScreen">
-        <div class="success-icon">✓</div>
-        <div class="receipt-title">Giao dịch thành công!</div>
-        <div class="receipt-amount" id="resAmount">0 VND</div>
-
-        <div class="receipt-details">
-            <div class="detail-row">
-                <span class="detail-label">Tên người nhận</span>
-                <span class="detail-value" id="resName">TRAN THI B</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Ngân hàng</span>
-                <span class="detail-value" id="resBank">Vietcombank</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Số tài khoản</span>
-                <span class="detail-value" id="resAccount">123456789</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Thời gian</span>
-                <span class="detail-value" id="resTime">--/--/----</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Mã giao dịch</span>
-                <span class="detail-value" id="resRef">FT2611249981</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Nội dung</span>
-                <span class="detail-value" id="resMessage">-</span>
-            </div>
-        </div>
-
-        <div class="demo-watermark">GIAO DIỆN MÔ PHỎNG UI/UX</div>
-
-        <button class="btn-submit" style="width: 100%; margin-top: auto;" onclick="resetForm()">Thực hiện giao dịch mới</button>
-    </div>
-</div>
-
-<script>
-    let currentBalance = 50000000;
-
-    // Danh sách tên giả lập để tự động hiển thị khi nhập STK
-    const mockNames = ["TRAN THI B", "LE HOANG C", "PHAM MINH D", "HOANG THU E"];
-    const accountInput = document.getElementById('accountInput');
-    const recipientNameBox = document.getElementById('recipientName');
-    const amountInput = document.getElementById('amountInput');
-
-    // Tự động tra cứu tên người nhận giả lập khi nhập đủ 6 ký tự
-    accountInput.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, ''); // Chỉ cho nhập số
-        if (this.value.length >= 6) {
-            const index = parseInt(this.value.slice(-1)) % mockNames.length;
-            recipientNameBox.textContent = mockNames[index];
-            recipientNameBox.style.display = 'block';
-        } else {
-            recipientNameBox.style.display = 'none';
+        .btn-back-white {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
         }
-    });
-
-    // Định dạng dấu phẩy hàng nghìn cho số tiền
-    amountInput.addEventListener('input', function() {
-        let rawValue = this.value.replace(/[^0-9]/g, '');
-        if (rawValue) {
-            this.value = parseInt(rawValue, 10).toLocaleString('en-US');
-        } else {
-            this.value = '';
+        .balance-box {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 14px;
+            padding: 14px 16px;
         }
-    });
+        .balance-box .lbl { font-size: 12px; opacity: 0.85; }
+        .balance-box .val { font-size: 22px; font-weight: 700; margin: 4px 0; }
+        .balance-box .stk { font-size: 12.5px; opacity: 0.9; text-transform: uppercase; }
 
-    function setAmount(val) {
-        amountInput.value = val.toLocaleString('en-US');
-    }
-
-    function processTransfer() {
-        const account = accountInput.value.trim();
-        const rawAmount = parseInt(amountInput.value.replace(/,/g, ''), 10);
-        const bank = document.getElementById('bankSelect').value;
-        const message = document.getElementById('messageInput').value.trim();
-        const recipient = recipientNameBox.textContent;
-
-        if (account.length < 6) {
-            alert("Vui lòng nhập số tài khoản hợp lệ (tối thiểu 6 chữ số).");
-            return;
+        .transfer-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
         }
-        if (!rawAmount || rawAmount <= 0) {
-            alert("Vui lòng nhập số tiền cần chuyển.");
-            return;
+        .field-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
         }
-        if (rawAmount > currentBalance) {
-            alert("Số dư tài khoản không đủ để thực hiện giao dịch.");
-            return;
+        .field-card label {
+            display: block;
+            font-size: 11.5px;
+            color: var(--text-gray);
+            margin-bottom: 5px;
+            font-weight: 600;
         }
-
-        // Trừ số dư giả lập
-        currentBalance -= rawAmount;
-        document.getElementById('displayBalance').textContent = currentBalance.toLocaleString('en-US') + " VND";
-
-        // Cập nhật thông tin lên biên lai
-        document.getElementById('resAmount').textContent = rawAmount.toLocaleString('en-US') + " VND";
-        document.getElementById('resName').textContent = recipient;
-        document.getElementById('resBank').textContent = bank;
-        document.getElementById('resAccount').textContent = account;
-        document.getElementById('resMessage').textContent = message || "Chuyen tien";
-
-        // Lấy thời gian hiện tại
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + " - " + now.toLocaleDateString('vi-VN');
-        document.getElementById('resTime').textContent = timeString;
-
-        // Tạo mã tham chiếu ngẫu nhiên
-        document.getElementById('resRef').textContent = "FT" + Math.floor(100000000 + Math.random() * 900000000);
-
-        // Hiển thị màn hình biên lai
-        document.getElementById('receiptScreen').style.display = 'flex';
-    }
-
-    function resetForm() {
-        accountInput.value = '';
-        amountInput.value = '';
-        recipientNameBox.style.display = 'none';
-        document.getElementById('receiptScreen').style.display = 'none';
-    }
-</script>
-
-</body>
-  </html>
-  
+        .
+    
